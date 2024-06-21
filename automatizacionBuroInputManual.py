@@ -6,63 +6,92 @@ Created on Jun 21, 2024
 
 def matriz1():
     print("\nMatriz 1")
-    numCuentas = input("¿cuántas cuentas tiene?")
-    numCuentas = int(numCuentas)
     ans = {}
     finalAns = "No se cuenta"
-    if numCuentas == 1:
-        solicitante = input("es un solicitante válido?")
-        if solicitante != "v":
-            ans[0] = "-"
-        else:
-            periodo = input("cuantos meses?")
+    
+    cliente = input("tiene cuentas con RSF (s / n)?")
+    if cliente == "s":
+        cliente = "n"
+        numRsfCuentas = input("¿cuántas cuentas de RSF tiene?")
+        numRsfCuentas = int(numRsfCuentas)
+        sum = 0
+        for c in range(numRsfCuentas):
+            periodo = input("cuantos meses en el periodo?")
             periodo = int(periodo)
+            meses = input("cuantos meses en total?")
+            meses = int(meses)
             mop = input("cuál es el mop de la cuenta?")
             mop = int(mop)
+            sum += meses
             if 0 < periodo <= 12:
-                if mop <= 3:
-                    ans[0] = "A"
-                else:
-                    ans[0] = "R"
+                ans[c] = mop
+                if sum >= 3:
+                    cliente = "s"
+    
+    if cliente == "s":
+        for a in ans:
+            if ans[a] <= 3:
+                ans[a] = "A"
             else:
-                if mop in [96, 97, 99]:
-                    ans[0] = "R"
-                else:
-                    ans[0] = "-"
-    elif numCuentas<1:
-        finalAns = "Aprobado"
+                ans[a] = "R"
     else:
-        for c in range(numCuentas):
+        ans = {}
+        numCuentas = input("¿cuántas cuentas tiene?")
+        numCuentas = int(numCuentas)
+        if numCuentas == 1:
             solicitante = input("es un solicitante válido?")
             if solicitante != "v":
-                ans[c] = "-"
-                continue
-            mop = input("cuál es el mop de la cuenta?")
-            if mop in ["96", "97", "99"]:
-                ans[c] = "R"
-                continue
-            mop = int(mop)
-            periodo = input("cuantos meses?")
-            periodo = int(periodo)
-            if 0 < periodo <= 3:
-                if mop > 2:
-                    ans[c] = "R"
-                else:
-                    ans[c] = "A"
-            elif periodo <= 6:
-                if mop > 3:
-                    ans[c] = "R"
-                else:
-                    ans[c] = "A"
-            elif periodo <= 12:
-                if mop > 4:
-                    ans[c] = "R"
-                else:
-                    ans[c] = "A"
+                ans[0] = "-"
             else:
-                ans[c] = "-"
-    
-    print("\n\nel numero de cuentas es: " + str(numCuentas))
+                periodo = input("cuantos meses?")
+                periodo = int(periodo)
+                mop = input("cuál es el mop de la cuenta?")
+                mop = int(mop)
+                if 0 < periodo <= 12:
+                    if mop <= 3:
+                        ans[0] = "A"
+                    else:
+                        ans[0] = "R"
+                else:
+                    if mop in [96, 97, 99]:
+                        ans[0] = "R"
+                    else:
+                        ans[0] = "-"
+        elif numCuentas<1:
+            finalAns = "Aprobado"
+        else:
+            for c in range(numCuentas):
+                solicitante = input("es un solicitante válido?")
+                if solicitante != "v":
+                    ans[c] = "-"
+                    continue
+                mop = input("cuál es el mop de la cuenta?")
+                if mop in ["96", "97", "99"]:
+                    ans[c] = "R"
+                    continue
+                mop = int(mop)
+                periodo = input("cuantos meses?")
+                periodo = int(periodo)
+                if 0 < periodo <= 3:
+                    if mop > 2:
+                        ans[c] = "R"
+                    else:
+                        ans[c] = "A"
+                elif periodo <= 6:
+                    if mop > 3:
+                        ans[c] = "R"
+                    else:
+                        ans[c] = "A"
+                elif periodo <= 12:
+                    if mop > 4:
+                        ans[c] = "R"
+                    else:
+                        ans[c] = "A"
+                else:
+                    ans[c] = "-"
+        print("\n\nel numero de cuentas es: " + str(numCuentas))
+        
+        
     for a in ans:
         if ans[a] == "-":
             print("cuenta " + str(a + 1) + " no cuenta")
