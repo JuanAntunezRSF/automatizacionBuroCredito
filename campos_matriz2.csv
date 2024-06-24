@@ -1,8 +1,9 @@
-edad,50
+edad,56
 antiguedad_empleo,15
 actividad_economica,propio
 comprobante_ingresos,si
-porta_armas,si
-referencias,f-f-p-p
-ingreso,5000
+porta_armas,no
+ingreso,36000
 estudios,preparatoria
+tipo_empleo,informal
+antiguedad_domicilio,15

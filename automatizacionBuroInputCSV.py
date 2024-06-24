@@ -3,10 +3,17 @@ Created on Jun 21, 2024
 
 @author: ti
 '''
+from datetime import date
 import csv
 
 data = {}
 data2 = {}
+monthsToNumber = {"ene": 1, "feb": 2, "mar": 3, "abr": 4, "may": 5, "jun": 6, "jul": 7, "ago": 8, "sep": 9, "oct": 10, "nov": 11, "dic": 12}
+today = date.today()
+tm = today.month
+ty = today.year
+lym = 1 if tm + 1 == 13 else tm + 1
+lyy = ty - 1
 def readData():
     with open('campos_matriz1.csv', 'r') as csvfile:
         csv_reader = csv.reader(csvfile)
@@ -14,6 +21,7 @@ def readData():
         for row in csv_reader:
             data[i] = row
             i += 1
+    getPeriodo()
             
     with open('campos_matriz2.csv', 'r') as csvfile:
         csv_reader = csv.reader(csvfile)
@@ -21,6 +29,45 @@ def readData():
             data2[row[0]] = row[1]
         if "referencias" in data2:
             data2["referencias"] = data2["referencias"].split("-")
+
+def getPeriodo():
+    for ind in data:
+        if data[ind][0] in ["RSF", "V"]:
+            per1 = data[ind][3]
+            per2 = data[ind][4]
+            m1 = monthsToNumber[per1[:3]]
+            a1 = int(per1[3:])
+            m2 = monthsToNumber[per2[:3]]
+            a2 = int(per2[3:])
+            if m2 >= m1:
+                ad = a2 - a1
+                md = m2 - m1
+                md += ad * 12
+            else:
+                ad = a2 - a1
+                if ad >= 1:
+                    ad -= 1
+                    md = 12 + m1 - m2
+            data[ind][3] = md + 1
+            
+            if a2 > lyy or (a2 == lyy and m2 >= lym):
+                if a1 > lyy or (a1 == lyy and m1 >= lym):
+                    data[ind][2] = md + 1
+                else:
+                    if m2 >= lym:
+                        ad = a2 - lyy
+                        md = m2 - lym
+                        md += ad * 12
+                    else:
+                        ad = a2 - lyy
+                        if ad >= 1:
+                            ad -= 1
+                            md = 12 + lym - m2
+                    data[ind][2] = md + 1
+            else:
+                data[ind][2] = 0
+            
+        
 
 def matriz1():
     print("\nMatriz 1")
@@ -159,27 +206,38 @@ def matriz2():
     else:
         ans["porta armas"] = "A"
     
+    """
     if len(data2["referencias"]) < 6:
         ans["referencias"] = "R"
         finalAns = "Rechazado"
     else:
         ans["referencias"] = "A"
+    """
     
     if int(data2["ingreso"]) < 2000:
         ans["ingreso"] = "R"
         finalAns = "Rechazado"
     else:
         ans["ingreso"] = "A"
+    
+    if data2["tipo_empleo"] in ["informal", "formal"]:
+        ans["ingreso"] = "A"
+    else:
+        ans["ingreso"] = "R"
+        finalAns = "Rechazado"
+    
+    ans["antiguedad domicilio"] = "A"
         
     for a in ans:
         if ans[a] == "R":
-            print(a + ":   Rechazado")
+            print(a + ":   No cumple")
         else:
-            print(a + ":   Aprobado")
+            print(a + ":   Cumple")
     
-    print("\nveredicto final de la matriz 2: " + finalAns)
+    #print("\nveredicto final de la matriz 2: " + finalAns)
+    print("\nveredicto final de la matriz 2: Pendiente por recibir información")
 
 readData()
 matriz1()
 matriz2()
-#print(data2)
+print(data)
