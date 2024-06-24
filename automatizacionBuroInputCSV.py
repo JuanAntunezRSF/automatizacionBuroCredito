@@ -88,7 +88,6 @@ def matriz1():
                     ans[c] = "-"
                     continue
                 mop = data[c][1]
-                print(mop)
                 if mop in ["96", "97", "99"]:
                     ans[c] = "R"
                     continue
@@ -174,13 +173,13 @@ def matriz2():
         
     for a in ans:
         if ans[a] == "R":
-            print(a + ": Rechazado")
+            print(a + ":   Rechazado")
         else:
-            print(a + ": Aprobado")
+            print(a + ":   Aprobado")
     
     print("\nveredicto final de la matriz 2: " + finalAns)
 
 readData()
-#matriz1()
+matriz1()
 matriz2()
-print(data2)
+#print(data2)
