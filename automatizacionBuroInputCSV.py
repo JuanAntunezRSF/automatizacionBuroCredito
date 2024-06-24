@@ -221,9 +221,9 @@ def matriz2():
         ans["ingreso"] = "A"
     
     if data2["tipo_empleo"] in ["informal", "formal"]:
-        ans["ingreso"] = "A"
+        ans["tipo_empleo"] = "A"
     else:
-        ans["ingreso"] = "R"
+        ans["tipo_empleo"] = "R"
         finalAns = "Rechazado"
     
     ans["antiguedad domicilio"] = "A"
@@ -241,3 +241,4 @@ readData()
 matriz1()
 matriz2()
 print(data)
+print(data2)
