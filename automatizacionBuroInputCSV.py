@@ -6,14 +6,21 @@ Created on Jun 21, 2024
 import csv
 
 data = {}
+data2 = {}
 def readData():
-    with open('prueba.csv', 'r') as csvfile:
+    with open('campos_matriz1.csv', 'r') as csvfile:
         csv_reader = csv.reader(csvfile)
-        #print(csv_reader)
         i = 0
         for row in csv_reader:
             data[i] = row
             i += 1
+            
+    with open('campos_matriz2.csv', 'r') as csvfile:
+        csv_reader = csv.reader(csvfile)
+        for row in csv_reader:
+            data2[row[0]] = row[1]
+        if "referencias" in data2:
+            data2["referencias"] = data2["referencias"].split("-")
 
 def matriz1():
     print("\nMatriz 1")
@@ -121,6 +128,59 @@ def matriz1():
             
     print("\nveredicto final de la matriz 1: " + finalAns)
 
+def matriz2():
+    print("\nMatriz 2")
+    finalAns = "Aprobado"
+    ans = {}
+    if 18 < int(data2["edad"]) < 70:
+        ans["edad"] = "A"
+    else:
+        ans["edad"] = "R"
+        finalAns = "Rechazado"
+    
+    if int(data2["antiguedad_empleo"]) < 6:
+        ans["arraigo laboral"] = "R"
+        finalAns = "Rechazado"
+    else:
+        if data2["actividad_economica"] == "propio" and int(data2["antiguedad_empleo"]) < 12:
+            ans["arraigo laboral"] = "R"
+            finalAns = "Rechazado"
+        else:
+            ans["arraigo laboral"] = "A"
+    
+    if data2["comprobante_ingresos"] == "si":
+        ans["comprobante ingresos"] = "A"
+    else:
+        ans["comprobante ingresos"] = "R"
+        finalAns = "Rechazado"
+    
+    if data2["porta_armas"] == "si":
+        ans["porta armas"] = "R"
+        finalAns = "Rechazado"
+    else:
+        ans["porta armas"] = "A"
+    
+    if len(data2["referencias"]) < 6:
+        ans["referencias"] = "R"
+        finalAns = "Rechazado"
+    else:
+        ans["referencias"] = "A"
+    
+    if int(data2["ingreso"]) < 2000:
+        ans["ingreso"] = "R"
+        finalAns = "Rechazado"
+    else:
+        ans["ingreso"] = "A"
+        
+    for a in ans:
+        if ans[a] == "R":
+            print(a + ": Rechazado")
+        else:
+            print(a + ": Aprobado")
+    
+    print("\nveredicto final de la matriz 2: " + finalAns)
+
 readData()
-matriz1()
-print(data)
+#matriz1()
+matriz2()
+print(data2)
