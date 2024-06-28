@@ -1,9 +1,10 @@
-edad,17
-antiguedad_empleo,7
+edad,50
+antiguedad_empleo,13
 actividad_economica,propio
-comprobante_ingresos,n
-porta_armas,si
-ingreso,20
+comprobante_ingresos,nomina
+porta_armas,n
+ingreso,2000
 estudios,preparatoria
 tipo_empleo,informal
 antiguedad_domicilio,15
+tipo_vivienda,propia

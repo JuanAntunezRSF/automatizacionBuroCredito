@@ -48,7 +48,6 @@ import csv
 
 data = {}
 data2 = {}
-dataTemp = {}
 monthsToNumber = {"ene": 1, "feb": 2, "mar": 3, "abr": 4, "may": 5, "jun": 6, "jul": 7, "ago": 8, "sep": 9, "oct": 10, "nov": 11, "dic": 12}
 numbersToMonth = {1: "ene", 2: "feb", 3: "mar", 4: "abr", 5: "may", 6: "jun", 7: "jul", 8: "ago", 9: "sep", 10: "oct", 11: "nov", 12: "dic"}
 today = date.today()
@@ -56,6 +55,10 @@ tm = today.month
 ty = today.year
 lym = 1 if tm + 1 == 13 else tm + 1
 lyy = ty - 1
+pathToFollow = 2#1 --> nuevo, 2 --> no hit, 3 --> renovado
+pathInfo = {1: "Nuevo", 2: "No Hit/Sin cuentas", 3: "Renovado"}
+estudiosToNumber = {"primaria": 1, "secundaria": 2, "preparatoria": 3, "universidad": 4, "maestria": 5, "doctorado": 6}
+
 def readData():
     with open('campos_matriz1.csv', 'r') as csvfile:
         csv_reader = csv.reader(csvfile)
@@ -133,10 +136,10 @@ def comparePeriods(per1, per2):
             return per2
     return per1
 
-def matriz1():
+def matriz1(pathToFollow):
     print("\nMatriz 1")
     ans = {}
-    finalAns = "No se cuenta"
+    finalAns = "Aprobado"
     locales = []
     cliente = ""
     for ind in data:
@@ -166,6 +169,7 @@ def matriz1():
                 i += 1
     
     if cliente == "s":
+        pathToFollow = 3
         ansPeriodo = {}
         for a in ans:
             if ans[a][0] != "-":
@@ -226,6 +230,7 @@ def matriz1():
                 if not solicitante in ["V", "RSF"]:
                     ans[c] = "-"
                     continue
+                pathToFollow = 1
                 mop = data[c][1]
                 if mop in ["96", "97", "99"]:
                     ans[c] = "R"
@@ -265,16 +270,43 @@ def matriz1():
             print("cuenta " + str(a + 1) + " es una aprobación")
             
     print("\nveredicto final de la matriz 1: " + finalAns)
+    print("Camino a seguir en la siguientes validaciones: " + pathInfo[pathToFollow])#str(pathToFollow) + 
+    return pathToFollow
 
 def matriz2():
     print("\nMatriz 2")
     finalAns = "Aprobado"
     ans = {}
-    if 18 < int(data2["edad"]) < 70:
-        ans["edad"] = "A"
+    if pathToFollow == 2:
+        if 26 < int(data2["edad"]) < 70:
+            ans["edad"] = "A"
+        else:
+            ans["edad"] = "R"
+            finalAns = "Rechazado"
+        
+        if estudiosToNumber[data2["estudios"]] >= 3:
+            ans["estudios"] = "A"
+        else:
+            ans["estudios"] = "R"
+            finalAns = "Rechazado"
+        
+        if data2["tipo_vivienda"] in ["propia", "familiar"]:
+            ans["tipo vivienda"] = "A"
+        else:
+            ans["tipo vivienda"] = "R"
+            finalAns = "Rechazado"
+    elif pathToFollow == 3:
+        if 18 < int(data2["edad"]) < 76:
+            ans["edad"] = "A"
+        else:
+            ans["edad"] = "R"
+            finalAns = "Rechazado"
     else:
-        ans["edad"] = "R"
-        finalAns = "Rechazado"
+        if 18 < int(data2["edad"]) < 70:
+            ans["edad"] = "A"
+        else:
+            ans["edad"] = "R"
+            finalAns = "Rechazado"
     
     if int(data2["antiguedad_empleo"]) < 6:
         ans["arraigo laboral"] = "R"
@@ -286,7 +318,7 @@ def matriz2():
         else:
             ans["arraigo laboral"] = "A"
     
-    if data2["comprobante_ingresos"] == "si":
+    if data2["comprobante_ingresos"] in ["nomina", "SAT"]:
         ans["comprobante ingresos"] = "A"
     else:
         ans["comprobante ingresos"] = "R"
@@ -297,14 +329,6 @@ def matriz2():
         finalAns = "Rechazado"
     else:
         ans["porta armas"] = "A"
-    
-    """
-    if len(data2["referencias"]) < 6:
-        ans["referencias"] = "R"
-        finalAns = "Rechazado"
-    else:
-        ans["referencias"] = "A"
-    """
     
     if int(data2["ingreso"]) < 2000:
         ans["ingreso"] = "R"
@@ -322,15 +346,19 @@ def matriz2():
         
     for a in ans:
         if ans[a] == "R":
-            print(a + ":   No cumple")
+            fancyPrinting(a, "No cumple", 25)
         else:
-            print(a + ":   Cumple")
+            fancyPrinting(a, "Cumple", 25)
     
-    #print("\nveredicto final de la matriz 2: " + finalAns)
-    print("\nveredicto final de la matriz 2: Pendiente por recibir información")
+    print("\nveredicto final de la matriz 2: " + finalAns)
+    #print("\nveredicto final de la matriz 2: Pendiente por recibir información")
+
+def fancyPrinting(var1, var2, spaces):
+    emptySpaces = " " * (spaces - len(var1))
+    print(var1 + ":" + emptySpaces + var2)
 
 readData()
-matriz1()
-#matriz2()
+pathToFollow = matriz1(pathToFollow)
+matriz2()
 print(data)
-#print(data2)
+print(data2)
