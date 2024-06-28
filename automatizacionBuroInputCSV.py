@@ -336,11 +336,7 @@ def matriz2():
     else:
         ans["ingreso"] = "A"
     
-    if data2["tipo_empleo"] in ["informal", "formal"]:
-        ans["tipo_empleo"] = "A"
-    else:
-        ans["tipo_empleo"] = "R"
-        finalAns = "Rechazado"
+    ans["tipo_empleo"] = "A"
     
     ans["antiguedad domicilio"] = "A"
         
