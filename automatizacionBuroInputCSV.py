@@ -2,13 +2,55 @@
 Created on Jun 21, 2024
 
 @author: ti
+copiar los json de base de datos para la tabla 
+select 
+
+ buro_credito_consulta.id_consulta 
+,buro_credito_consulta.id_usuario 
+,buro_credito_consulta.id_solicitud 
+,buro_credito_consulta.id_sucursal 
+#,administracion_sucursales.sucursal 
+,core_catalogo_origen.origen 
+#,prospecto_web_solicitud.id_origen 
+#,buro_credito_consulta.estatus 
+#,buro_credito_consulta.curp
+,buro_credito_consulta.exito 
+,buro_credito_consulta_sc.microfinanciera 
+,date(buro_credito_consulta_sc.fecha_registro) as fecha_registro 
+,buro_credito_consulta_sc.fecha_registro
+,buro_credito_consulta.cadena_respuesta 
+,buro_credito_consulta.folio_consulta 
+
+from buro_credito_consulta 
+
+left join buro_credito_consulta_sc
+on buro_credito_consulta.id_consulta = buro_credito_consulta_sc.id_consulta 
+
+left join administracion_sucursales 
+on administracion_sucursales.id_sucursal = buro_credito_consulta.id_sucursal
+
+left join prospecto_web_solicitud 
+on prospecto_web_solicitud.id_solicitud = buro_credito_consulta.id_solicitud
+
+left join credito_solicitud_origen 
+on credito_solicitud_origen.id_solicitud = prospecto_web_solicitud.id_solicitud 
+
+left join core_catalogo_origen 
+on core_catalogo_origen.id_origen = prospecto_web_solicitud.id_origen 
+
+where true 
+and administracion_sucursales.id_sucursal = 179
+and date(buro_credito_consulta_sc.fecha_registro) between '2024-05-31'  and '2024-05-31'  ;
 '''
+
 from datetime import date
 import csv
 
 data = {}
 data2 = {}
+dataTemp = {}
 monthsToNumber = {"ene": 1, "feb": 2, "mar": 3, "abr": 4, "may": 5, "jun": 6, "jul": 7, "ago": 8, "sep": 9, "oct": 10, "nov": 11, "dic": 12}
+numbersToMonth = {1: "ene", 2: "feb", 3: "mar", 4: "abr", 5: "may", 6: "jun", 7: "jul", 8: "ago", 9: "sep", 10: "oct", 11: "nov", 12: "dic"}
 today = date.today()
 tm = today.month
 ty = today.year
@@ -21,6 +63,7 @@ def readData():
         for row in csv_reader:
             data[i] = row
             i += 1
+    trimData()
     getPeriodo()
             
     with open('campos_matriz2.csv', 'r') as csvfile:
@@ -29,6 +72,13 @@ def readData():
             data2[row[0]] = row[1]
         if "referencias" in data2:
             data2["referencias"] = data2["referencias"].split("-")
+
+def trimData():
+    flag = False
+    for row in dict(data):
+        if data[row][0] == "#" or flag:
+            flag = True
+            del data[row]
 
 def getPeriodo():
     for ind in data:
@@ -39,6 +89,7 @@ def getPeriodo():
             a1 = int(per1[3:])
             m2 = monthsToNumber[per2[:3]]
             a2 = int(per2[3:])
+
             if m2 >= m1:
                 ad = a2 - a1
                 md = m2 - m1
@@ -47,7 +98,8 @@ def getPeriodo():
                 ad = a2 - a1
                 if ad >= 1:
                     ad -= 1
-                    md = 12 + m1 - m2
+                    md = 12 + m2 - m1
+                md += ad * 12
             data[ind][3] = md + 1
             
             if a2 > lyy or (a2 == lyy and m2 >= lym):
@@ -62,12 +114,24 @@ def getPeriodo():
                         ad = a2 - lyy
                         if ad >= 1:
                             ad -= 1
-                            md = 12 + lym - m2
+                            md = 12 + m2 - lym
                     data[ind][2] = md + 1
             else:
                 data[ind][2] = 0
             
-        
+def comparePeriods(per1, per2):
+    m1 = monthsToNumber[per1[:3]]
+    a1 = int(per1[3:])
+    m2 = monthsToNumber[per2[:3]]
+    a2 = int(per2[3:])
+    if a2 > a1:
+        return per2
+    elif a1 > a2:
+        return per1
+    else:
+        if m2 > m1:
+            return per2
+    return per1
 
 def matriz1():
     print("\nMatriz 1")
@@ -93,17 +157,45 @@ def matriz1():
             mop = int(mop)
             sumc += meses
             if 0 < periodo <= 12:
-                ans[i] = mop
+                ans[i] = [mop, c[4], c[5]]
                 i += 1
                 if sumc >= 3:
                     cliente = "s"
+            else:
+                ans[i] = ["-"]
+                i += 1
     
     if cliente == "s":
+        ansPeriodo = {}
         for a in ans:
-            if ans[a] <= 3:
-                ans[a] = "A"
+            if ans[a][0] != "-":
+                ansPeriodo[a] = ans[a]
             else:
-                ans[a] = "R"
+                ans[a] = "-"
+        ansSaldos = {}
+        for a in ansPeriodo:
+            if int(ans[a][2]) > 0:
+                ansSaldos[a] = ans[a]
+        if len(ansSaldos) == 0:
+            mostRecentDate = numbersToMonth[lym] + str(lyy)
+            for a in ansPeriodo:
+                mostRecentDate = comparePeriods(mostRecentDate, ans[a][1])
+            for a in ansPeriodo:
+                if ans[a][1] != mostRecentDate:
+                    ans[a] = "-"
+                else:
+                    if ans[a][0] <= 3:
+                        ans[a] = "A"
+                    else:
+                        ans[a] = "R"
+        else:
+            for a in ans:
+                ans[a] = "-"
+            for a in ansSaldos:
+                if ansSaldos[a][0] <= 3:
+                    ans[a] = "A"
+                else:
+                    ans[a] = "R"
     else:
         ans = {}
         numCuentas = len(data)
@@ -239,6 +331,6 @@ def matriz2():
 
 readData()
 matriz1()
-matriz2()
+#matriz2()
 print(data)
-print(data2)
+#print(data2)
