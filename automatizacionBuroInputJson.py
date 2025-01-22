@@ -415,6 +415,6 @@ def fancyPrinting(var1, var2, spaces):
 
 readData()
 pathToFollow = matriz1(pathToFollow)
-#matriz2()
+matriz2()
 print(data)
 print(data2)
